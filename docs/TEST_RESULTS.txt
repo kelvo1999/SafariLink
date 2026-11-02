@@ -1,0 +1,68 @@
+2026-10-30 22:22:22 0 [Warning] failed to retrieve the MAC address
+2026-10-30 22:22:22 0 [Warning] Could not increase number of max_open_files to more than 16384 (request: 32191)
+PASS non-overlapping seat journeys can coexist
+PASS overlapping seat journey rejected
+PASS group booking fails atomically
+PASS failed group creates no booking
+PASS failed group leaves free seat
+PASS request releases expired hold without cleanup worker
+PASS exact payment confirms live hold
+PASS duplicate manual transaction idempotent
+PASS reference amount mismatch rejected
+PASS late payment with re-sold seat enters resolution
+PASS late payment money retained
+PASS late payment reacquires original free seats
+PASS partial payment does not confirm
+PASS partial payments sum exactly
+PASS ticket issuance retry does not duplicate tickets
+PASS tampered boarding token rejected
+PASS wrong boarding stop rejected
+PASS wrong trip rejected
+PASS first scan recorded
+PASS repeat scan rejected
+PASS cancellation releases seat segments
+PASS refund approval is not completion
+PASS same finance officer cannot approve and process
+PASS independent verified refund processing
+PASS agent cannot record payments
+PASS cross-customer booking access denied
+PASS concurrency subprocess exits normally
+PASS concurrency subprocess exits normally
+PASS concurrent reservation has exactly one winner
+PASS reschedule fails without fare difference
+PASS failed reschedule preserves original
+PASS reschedule retires original only after replacement secured
+PASS reschedule credits original fare plus difference
+PASS reschedule releases old segments
+PASS reschedule retry idempotent
+PASS unresolved replacement mapping rejected
+PASS failed replacement preserves bus
+PASS explicit replacement seat mapping committed
+38 database/integration checks passed. Test data retained; reset only the isolated test database before rerunning.
+PASS passenger search page renders
+PASS content security policy present
+PASS session cookie is HttpOnly
+PASS invalid CSRF rejected (status 419, body Form expired. Reload and retry.)
+PASS anonymous denied finance
+PASS anonymous denied dispatch
+PASS anonymous denied routes
+PASS anonymous denied fleet
+PASS anonymous denied boarding
+PASS anonymous denied reports
+PASS passenger registration
+PASS passenger sign-in
+PASS new passenger sees no other bookings
+PASS cross-customer booking access denied over HTTP
+PASS cross-customer ticket access denied over HTTP
+PASS invalid guest key grants no booking access
+PASS passenger cannot access finance
+PASS staff login requires MFA enrollment
+PASS password alone does not grant staff access
+PASS valid authenticator code completes staff login
+PASS authorized finance view loads
+PASS authorized financial report loads
+PASS authorized report CSV export
+23 HTTP checks passed.
+Backup written. Keep the backup and APP_KEY protected separately.
+Restoration completed. Validate counts, financial totals and authorization before use.
+28 restored table counts match; payment/refund totals and allocation counts match.

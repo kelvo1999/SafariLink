@@ -1,0 +1,229 @@
+Act as a senior full-stack developer, database engineer, and UI/UX designer. Build a complete bus booking and management system named SafariLink. Keep the name configurable.
+
+Work directly in my project files. First inspect the repository, existing database, dependencies, and project instructions. Preserve useful existing functionality and follow the current stack. If the folder is empty, use PHP 8.2+, MySQL 8+, Bootstrap 5, and JavaScript, compatible with XAMPP.
+
+Implement the application, not just a plan, dashboard, or sample screens. Make reasonable decisions and proceed without routine clarification. Do not claim unfinished features are working.
+
+BUSINESS CONTEXT
+- Kenyan bus operator.
+- Currency: KES.
+- Display timezone: Africa/Nairobi.
+- Normalize Kenyan phone numbers to international format.
+- M-Pesa Daraja payments with sandbox configuration.
+- Responsive passenger website and staff dashboards.
+- Allow guest bookings with secure booking retrieval and optional customer accounts.
+
+DESIGN
+Create a polished, accessible interface with navy, teal, white, and restrained orange accents.
+Include clear navigation, mobile-friendly seat selection, validation, loading states, helpful errors, search, filters, and pagination.
+Use actual database records. Keep clearly labelled demo data separate from operational data.
+
+ROLES
+Implement server-side permissions for:
+- Super administrator.
+- Operations administrator.
+- Dispatcher.
+- Booking clerk.
+- Sales agent.
+- Finance officer.
+- Boarding staff/conductor.
+- Passenger.
+
+Enforce permissions and record ownership on every relevant endpoint. Customers must only access their own bookings. Restrict agents to authorized sales and reports.
+
+MODULES
+
+1. AUTHENTICATION
+- Staff and customer authentication.
+- Secure password hashing, session management, and password reset.
+- Login rate limiting and staff MFA.
+- Secure first-administrator creation without hard-coded credentials.
+- Guest booking retrieval using a secure verification flow; booking references alone must not grant access to personal information.
+
+2. ROUTES AND STOPS
+- Towns, terminals, boarding points, and ordered route stops.
+- Route direction, distance, estimated duration, and stop times.
+- Fares between permitted origin and destination stops.
+- Reject invalid journeys and destinations preceding the selected origin.
+
+3. FLEET AND SEAT LAYOUTS
+- Bus registration, model, capacity, amenities, and operational status.
+- Configurable seat layouts with decks, rows, columns, aisles, seat labels, and seat classes.
+- Seats may be blocked for operational reasons.
+- Maintenance records and availability.
+- Preserve the seat layout used by each scheduled trip so later layout changes do not alter existing bookings.
+
+4. TRIPS AND DISPATCH
+- Dated departures with route, scheduled stop times, bus, crew, and sales cutoff.
+- Recurring schedule templates that generate individual trips.
+- Trip statuses: scheduled, boarding, departed, completed, delayed, and cancelled.
+- Prevent conflicting bus and crew assignments.
+- Dispatcher dashboard for upcoming departures and operational changes.
+- Controlled bus replacement with explicit seat mapping, capacity checks, unresolved-seat handling, and passenger notifications.
+
+5. SEARCH AND FARES
+- Search by departure town, destination, date, and passenger count.
+- Show departure/arrival details, boarding points, fares, amenities, and available seats.
+- Calculate availability for the requested journey segment.
+- Support seat classes, seasonal fares, promotions, and optional fees.
+- Show the full payable amount before payment.
+- Preserve the accepted fare and policy snapshot on the booking.
+
+6. SEAT INVENTORY AND HOLDS
+- Interactive seat map matching the assigned trip layout.
+- Available, selected, held, booked, and blocked states.
+- Server-controlled temporary holds with a configurable expiry.
+- Atomic acquisition of all seats in a group booking.
+- Database-enforced protection against overlapping seat allocations.
+
+For intermediate stops, model each journey as adjacent route segments.
+A seat booked Nairobi–Naivasha may be sold Naivasha–Nakuru, but may not simultaneously be sold Nairobi–Nakuru.
+Use transactions, row locking, and unique per-trip/per-seat/per-segment allocation constraints, or an equally robust design.
+Enforce these rules in the database and server, not only in the browser.
+Hold expiry must work during booking requests even if the cleanup worker is delayed.
+Use server time for expiry; the browser countdown is only a display.
+
+7. BOOKINGS AND PASSENGERS
+- Unique booking references.
+- Multiple passengers and seats per booking.
+- Passenger names and only necessary identification information.
+- Contact details and emergency contact where appropriate.
+- Booking, payment, ticket, and boarding statuses stored separately.
+- Booking history and staff audit trail.
+- Counter sales and group bookings.
+- Explicit handling of no-shows.
+
+8. PAYMENTS
+- M-Pesa Daraja STK Push initiation, callbacks, and status reconciliation.
+- Configurable manual cash/bank recording with permissions.
+- Server-side amount, currency, reference, and transaction verification using supported provider mechanisms.
+- Idempotent processing and unique provider transaction identifiers.
+- Handle pending, successful, failed, cancelled, timed-out, duplicate, and out-of-order events.
+- Never confirm payment based on a browser redirect or client-submitted success flag.
+- If payment arrives after the seat hold expires, atomically check whether the original seats can still be allocated.
+- If seats are unavailable, record the money and create a visible resolution/refund case. Do not issue a conflicting ticket or silently substitute seats.
+- Reconciliation dashboard for unmatched payments and discrepancies.
+- Store integration secrets outside source control.
+- Provide sandbox instructions and identify live credentials required.
+
+9. TICKETS AND RECEIPTS
+- Generate downloadable, printable tickets after confirmed payment.
+- Include booking reference, passenger, trip date, departure time, boarding point, route, seat, and relevant conditions.
+- QR codes must use securely generated, unguessable tokens without exposing personal information.
+- Separate payment receipts from travel tickets.
+- Deliver tickets through configured email/SMS channels.
+- Prevent duplicate ticket creation during retries.
+
+10. CHECK-IN AND BOARDING
+- Mobile-friendly QR scanning and manual reference lookup.
+- Validate the trip, boarding stop, ticket validity, cancellation state, and prior scans.
+- Atomic boarding updates to prevent repeated acceptance.
+- Passenger manifests for the relevant trip and boarding stop.
+- Record who scanned a ticket and when.
+- Provide printable manifests for connectivity failures.
+- If offline scanning is implemented, document its duplicate-detection limitations and provide conflict reconciliation. Do not claim global duplicate prevention while devices are offline.
+
+11. CANCELLATIONS, REFUNDS, AND RESCHEDULING
+- Configurable cancellation deadlines, fees, and refund eligibility.
+- Show the applicable policy before purchase.
+- Cancellation releases the correct seat segments atomically.
+- Refund request, approval, processing, and reconciliation states.
+- Do not label a refund completed until the provider or authorized finance process confirms it.
+- Rescheduling must hold the new seats, calculate fare differences, and safely transition inventory.
+- Preserve the old booking until the replacement is secured according to the documented payment rules.
+- Retain the full change history.
+
+12. AGENTS AND COUNTER SALES
+- Agent accounts and commission rules.
+- Record sale channel and responsible staff member.
+- Cash collections and settlement reports.
+- Permission-controlled discounts and overrides.
+- Auditable ticket reprints, cancellations, and manual payments.
+
+13. NOTIFICATIONS
+- Email and SMS provider interfaces.
+- Confirmation, payment, reminder, delay, cancellation, boarding-point change, and refund templates.
+- Queued delivery, retries, delivery history, and duplicate prevention.
+- Local development delivery logs when no provider is configured.
+- Customer notification preferences.
+
+14. REPORTS
+- Revenue invoiced or charged, money collected, refunds, and net collections.
+- Occupancy by trip and journey segment.
+- Passenger counts, no-shows, cancellations, and payment conversion.
+- Popular routes, agent performance, commissions, and settlements.
+- Date filters and CSV exports.
+- Clearly define occupancy calculations so segment sales do not produce misleading percentages.
+- Use real records and document metric definitions.
+
+15. SETTINGS AND OPERATIONS
+- Branding, contacts, terminals, timezone, currency, policies, hold duration, sales cutoffs, and notification schedules.
+- Queue workers and scheduled jobs.
+- Health checks and failed-job management.
+- Audit logs, backups, restoration instructions, and retention settings.
+
+ARCHITECTURE AND DATA
+- Maintain a modular separation of controllers, business services, persistence, and external integrations.
+- Use versioned migrations, foreign keys, indexes, constraints, and database transactions.
+- Model users, roles, permissions, customers, passengers, towns, stops, routes, route stops, buses, layout versions, seats, crew, trips, trip stops, fares, holds, segment allocations, bookings, booking passengers, payments, refunds, tickets, boarding events, agents, commissions, notifications, jobs, and audit events as appropriate.
+- Use integer minor currency units or decimal-safe calculations; never floating-point money arithmetic.
+- Store timestamps consistently and display local times correctly.
+- Use a transactional outbox or equivalent reliable mechanism for ticket issuance and notifications following payment.
+- Provide .env.example without secrets.
+- Back up existing data before potentially destructive migrations. Never silently delete customer or booking records.
+
+SECURITY
+- Prepared statements or a safe ORM.
+- CSRF protection, output escaping, input validation, and secure cookies.
+- Authorization on every protected operation.
+- Protect against SQL injection, XSS, insecure direct object references, and unsafe uploads.
+- Keep uploads outside the public web root.
+- Never log passwords, payment secrets, or full sensitive identity details.
+- Mask integration credentials in staff screens.
+- Audit sensitive actions without recording secrets.
+- Disable production debug output.
+
+IMPLEMENTATION WORKFLOW
+1. Inspect the project and briefly describe its current state.
+2. Create an implementation checklist in the repository.
+3. Implement working phases:
+   A. Database, authentication, roles, routes, fleet, and trips.
+   B. Search, segment inventory, seat holds, bookings, and passenger flow.
+   C. Payments, tickets, receipts, and boarding.
+   D. Refunds, rescheduling, agents, notifications, and reports.
+   E. Security review, integration verification, and deployment documentation.
+4. Run relevant checks after each phase.
+5. Continue beyond scaffolding until the requested workflows are implemented.
+6. If session limits approach, save a precise progress checkpoint with completed work, remaining tasks, known failures, and next commands.
+7. Never use success messages for actions that have not actually completed.
+
+VERIFICATION
+Write and run meaningful tests for:
+- Concurrent attempts to reserve the same seat.
+- Overlapping versus non-overlapping journey segments.
+- Group bookings succeeding or failing atomically.
+- Expired holds and delayed cleanup workers.
+- Payment callbacks arriving before, during, and after expiry.
+- Duplicate callbacks and repeated background jobs.
+- Incorrect payment amounts and unmatched transactions.
+- Cancellation and seat release.
+- Rescheduling failures without losing the original valid booking.
+- Bus replacement with different layouts or insufficient capacity.
+- QR tampering, cancelled tickets, wrong-trip scans, and repeated boarding.
+- Customer and staff authorization boundaries.
+- Financial totals, commissions, refunds, and reporting.
+
+Use isolated test data and simulated integrations. Do not contact live payment services or alter real operational records during automated tests.
+
+DELIVERABLES
+- Working project source.
+- Migrations and separately runnable demo data.
+- .env.example.
+- Installation guide for XAMPP or the detected environment.
+- Worker and scheduler setup.
+- M-Pesa sandbox configuration instructions.
+- Actual test commands and results.
+- Backup, restoration, deployment, and troubleshooting documentation.
+- A final checklist distinguishing implemented, tested, and externally dependent features.
+
+Start by inspecting the project, then build the system.
