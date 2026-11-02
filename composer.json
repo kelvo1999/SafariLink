@@ -1,0 +1,18 @@
+{
+  "name": "safarilink/booking",
+  "description": "Kenyan bus booking and operations",
+  "require": {
+    "php": ">=8.2",
+    "ext-pdo": "*",
+    "ext-pdo_mysql": "*",
+    "ext-mbstring": "*",
+    "ext-json": "*",
+    "ext-openssl": "*",
+    "ext-ctype": "*",
+    "ext-iconv": "*"
+  },
+  "scripts": {
+    "test": "php tests/unit.php",
+    "test:db": "php tests/integration.php"
+  }
+}
